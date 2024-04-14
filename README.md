@@ -1,3 +1,3 @@
 # AISudokuTeam
 CS 450 Sudoku Team
-Team Members : Aaron Sanchez
+Team Members : Aaron Sanchez, Marc Rodriguez
