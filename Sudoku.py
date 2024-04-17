@@ -1,10 +1,11 @@
 import pygame
 import solver
 import copy
+import random
 
 pygame.init()
 
-WIN_WIDTH = 800
+WIN_WIDTH = 700
 
 SCALE = WIN_WIDTH // 9
 WIN_HEIGHT = WIN_WIDTH + SCALE//2
@@ -13,34 +14,101 @@ WINDOW = pygame.display.set_mode((WIN_WIDTH, int(WIN_HEIGHT)))
 pygame.display.set_caption("Sudoku")
 
 STAT_FONT = pygame.font.SysFont("Times", int(SCALE//1.3))
-LABEL_FONT = pygame.font.SysFont("Century ", int(SCALE//2.5))
+LABEL_FONT = pygame.font.SysFont("comicsans", int(SCALE//2.8))
 
 # Color Pallet
 BLACK = [72, 72, 72]
-GREY = [100, 100, 100]
+GREY = [200, 200, 200]
 TEXT = [160, 160, 160]
-ITEXT = [87, 137, 217]
+ITEXT = [153, 102, 51]
 WHITE = [255, 255, 255]
-
 
 
 class Board:
     def __init__(self):
-        self.board = []
+        self.board = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
         self.initBoard = []
 
-    def Pick_Board(self):
-        self.initBoard = [[0, 0, 0, 0, 0, 0, 0, 0, 8],
-        [0, 2, 0, 0, 5, 0, 7, 6, 0],
-        [0, 6, 0, 0, 0, 0, 0, 0, 3],
-        [5, 0, 0, 0, 0, 0, 2, 0, 7],
-        [0, 3, 0, 0, 1, 0, 0, 0, 0],
-        [2, 0, 0, 4, 0, 0, 0, 3, 0],
-        [0, 0, 0, 6, 0, 0, 0, 0, 0],
-        [8, 0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 0, 0, 2, 7, 0, 0, 4, 0]]
+    def findEmpty(firstBoard):
+        for y in range(len(firstBoard)):
+            for x in range(len(firstBoard[0])):
+                if firstBoard[y][x] == 0:
+                    return y, x  # y = row , x = column
+        # if we got here it mean that we finish the sudoku, so return none
+        return None
 
-        self.board = copy.deepcopy(self.initBoard)
+    def validCheck(firstBoard, number, coordinates):
+        # checking row
+        for x in range(len(firstBoard[0])):
+            if number == firstBoard[coordinates[0]][x] and coordinates[1] != x:  # coordinates[0]= row
+                return False
+
+        # checking column
+        for y in range(len(firstBoard)):
+            if number == firstBoard[y][coordinates[1]] and coordinates[0] != y:
+                return False
+
+        # checking the box
+        box_x = coordinates[1] // 3
+        box_y = coordinates[0] // 3
+
+        for y in range(box_y * 3, box_y * 3 + 3):
+            for x in range(box_x * 3, box_x * 3 + 3):
+                if number == firstBoard[y][x] and (y, x) != coordinates:
+                    return False
+
+        return True
+
+    def generateRandomBoard(firstBoard):
+        # end condition:- getting to the end of the board - the function findEmpty return NONE
+        find = Board.findEmpty(firstBoard)
+        if find is None:  # if find != False
+            return True
+        else:
+            row, col = find
+        for number in range(1, 10):
+            randomNumber = random.randint(1, 9)
+            if Board.validCheck(firstBoard, randomNumber, (row, col)):
+                firstBoard[row][col] = randomNumber
+                if Board.generateRandomBoard(firstBoard):
+                    return True
+
+                firstBoard[row][col] = 0
+        return False
+
+    def deleteCells(firstBoard, number):
+        while number:
+            row = random.randint(0, 8)
+            col = random.randint(0, 8)
+            if firstBoard[row][col] != 0:
+                firstBoard[row][col] = 0
+                number = number - 1
+
+    def sudokuGenerate(firstBoard, level):
+
+        # printBoard(firstBoard)
+        Board.generateRandomBoard(firstBoard)
+        # printBoard(firstBoard)
+        if level == 1:
+            Board.deleteCells(firstBoard, 30)
+        if level == 2:
+            Board.deleteCells(firstBoard, 40)
+        if level == 3:
+            Board.deleteCells(firstBoard, 50)
+
+
+    def Pick_Board(self):
+        Board.sudokuGenerate(self.board, 2)
 
     def Get_Board(self):
         return self.board
