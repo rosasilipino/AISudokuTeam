@@ -1,7 +1,8 @@
 import pygame
-import solver
+from chooseLevel import *
 import copy
 import random
+import solver
 
 pygame.init()
 
@@ -11,10 +12,10 @@ SCALE = WIN_WIDTH // 9
 WIN_HEIGHT = WIN_WIDTH + SCALE//2
 
 WINDOW = pygame.display.set_mode((WIN_WIDTH, int(WIN_HEIGHT)))
-pygame.display.set_caption("Sudoku")
+pygame.display.set_caption("CS450 SUDOKU TEAM")
 
-STAT_FONT = pygame.font.SysFont("Times", int(SCALE//1.3))
-LABEL_FONT = pygame.font.SysFont("comicsans", int(SCALE//2.8))
+STAT_FONT = pygame.font.SysFont("freesansbold", int(SCALE//1.3))
+LABEL_FONT = pygame.font.SysFont("freesansbod", int(SCALE//2.8))
 
 # Color Pallet
 BLACK = [72, 72, 72]
@@ -107,8 +108,9 @@ class Board:
             Board.deleteCells(firstBoard, 50)
 
 
-    def Pick_Board(self):
-        Board.sudokuGenerate(self.board, 2)
+    def Pick_Board(self, level):
+        level = chooseLevel()
+        Board.sudokuGenerate(self.board, level)
 
     def Get_Board(self):
         return self.board
@@ -137,39 +139,39 @@ class Board:
                 Hgap = (SCALE - text.get_height()) // 2
                 WINDOW.blit(text, (col * SCALE + Wgap + 2, row * SCALE + Hgap+3))
 
-        text = LABEL_FONT.render("{}".format("Press SPACE to solve automatically."), 1, BLACK)
+        text = LABEL_FONT.render("{}".format("PRESS SPACE TO SOLVE AUTOMATICALLY."), 1, BLACK)
         WINDOW.blit(text, (int(WIN_WIDTH//2 - text.get_width()//2), int(WIN_HEIGHT-SCALE//2.7)))
 
         pygame.display.update()
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
 
 
-
+# Updated main function to utilize level chosen from chooseLevel.py - ROSE
 def main():
-    FPS = 30
-    Clock = pygame.time.Clock()
-    run = True
+    pygame.init()  # Initialize pygame here
+    level = chooseLevel()  # Choose level
+    if level == 1 or level == 2 or level == 3:
+        print(f"Level {level} chosen.")
+    elif not level:
+        print("No level chosen, exiting...")
+        pygame.quit()
 
     board = Board()
-    board.Pick_Board()
+    board.Pick_Board(level)  # Pass level to this function instead of calling chooseLevel again inside
 
+    run = True
     while run:
-        Clock.tick(FPS)
-
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            solver.Solve(board)
-
-        board.Draw()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
+            # Additional event handling here
+        board.Draw()
+       
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            solver.Solve(board)
+        
+    pygame.quit()
 
 if __name__ == '__main__':
     main()
