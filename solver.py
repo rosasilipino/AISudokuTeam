@@ -16,16 +16,25 @@ def Solve(board):
             board.Get_Board()[row][col] = 0
 
     return False
-# I just added this comment on my IDE to see if it updates on the git hub
+
+
+def Find_Empty(board):
+    for i in range(9):
+        for j in range(9):
+            if board.Get_Board()[i][j] == 0:
+                return [i, j]  # row, col
+
+    return None
+
 
 def Valid(board, num, pos):
     # Check row
-    for i in range(len(board.Get_Board()[0])):
+    for i in range(9):
         if board.Get_Board()[pos[0]][i] == num and pos[1] != i:
             return False
 
     # Check column
-    for i in range(len(board.Get_Board())):
+    for i in range(9):
         if board.Get_Board()[i][pos[1]] == num and pos[0] != i:
             return False
 
@@ -40,26 +49,3 @@ def Valid(board, num, pos):
 
     return True
 
-
-def Print_Board(board):
-    for i in range(len(board)):
-        if i % 3 == 0 and i != 0:
-            print("- - - - - - - - - - - - - ")
-
-        for j in range(len(board[0])):
-            if j % 3 == 0 and j != 0:
-                print(" | ", end="")
-
-            if j == 8:
-                print(board[i][j])
-            else:
-                print(str(board[i][j]) + " ", end="")
-
-
-def Find_Empty(board):
-    for i in range(len(board.Get_Board())):
-        for j in range(len(board.Get_Board()[0])):
-            if board.Get_Board()[i][j] == 0:
-                return [i, j]  # row, col
-
-    return None

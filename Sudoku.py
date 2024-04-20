@@ -3,6 +3,7 @@ from chooseLevel import *
 import copy
 import random
 import solver
+import time
 
 pygame.init()
 
@@ -168,9 +169,19 @@ def main():
         board.Draw()
        
         keys = pygame.key.get_pressed()
+
         if keys[pygame.K_SPACE]:
-            solver.Solve(board)
-        
+            if not solver_triggered:  # This is here so that it doesn't print the timer multiple times
+                solver_triggered = True  # Spacebar was pressed
+
+                start_time = time.time()  # Start of timer
+                solver.Solve(board)
+                end_time = time.time()  # End of timer
+
+                print(f"Sudoku solved in {end_time - start_time:.3f} seconds")
+        else:
+            solver_triggered = False  # Spacebar was not triggered
+
     pygame.quit()
 
 if __name__ == '__main__':
