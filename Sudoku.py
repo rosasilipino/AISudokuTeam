@@ -1,5 +1,7 @@
+from turtle import Screen
 import pygame
 from chooseLevel import *
+from runIterations import *
 import copy
 import random
 import solver
@@ -28,18 +30,12 @@ WHITE = [255, 255, 255]
 
 class Board:
     def __init__(self):
-        self.board = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
+        # Initialize a new board as a 9x9 grid filled with zeros
+        self.board = [[0 for _ in range(9)] for _ in range(9)]
         self.initBoard = []
+        
+    def resetBoard(self):
+        self.board = [[0 for _ in range(9)] for _ in range(9)]
 
     def findEmpty(firstBoard):
         for y in range(len(firstBoard)):
@@ -68,7 +64,6 @@ class Board:
             for x in range(box_x * 3, box_x * 3 + 3):
                 if number == firstBoard[y][x] and (y, x) != coordinates:
                     return False
-
         return True
 
     def generateRandomBoard(firstBoard):
@@ -97,7 +92,6 @@ class Board:
                 number = number - 1
 
     def sudokuGenerate(firstBoard, level):
-
         # printBoard(firstBoard)
         Board.generateRandomBoard(firstBoard)
         # printBoard(firstBoard)
@@ -108,9 +102,7 @@ class Board:
         if level == 3:
             Board.deleteCells(firstBoard, 50)
 
-
     def Pick_Board(self, level):
-        level = chooseLevel()
         Board.sudokuGenerate(self.board, level)
 
     def Get_Board(self):
@@ -145,43 +137,55 @@ class Board:
 
         pygame.display.update()
 
-
-
 # Updated main function to utilize level chosen from chooseLevel.py - ROSE
 def main():
-    pygame.init()  # Initialize pygame here
-    level = chooseLevel()  # Choose level
-    if level == 1 or level == 2 or level == 3:
-        print(f"Level {level} chosen.")
-    elif not level:
-        print("No level chosen, exiting...")
+    pygame.init()
+    
+    WINDOW = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    
+    
+    # Level selection section.
+    level = chooseLevel(WINDOW)  # Choose level
+    if level not in [1, 2, 3]:
+        print("NO LEVEL WAS CHOSEN. EXITING PROGRAM.")
         pygame.quit()
-
+    
+    # Number of puzzles to solve section.
+    numPuzzles = getNumOfRuns(WINDOW, "ENTER A NUMBER OF PUZZLES TO SOLVE: ")  # Get number of runs
+    try:
+        numPuzzles = int(numPuzzles)  # Convert to int
+    except ValueError:
+        print("ERRORL: INVALID INPUT, SETTING NUMBER OF PUZZLES TO SOLVE TO 1.")
+        numPuzzles = 1
+    print(f"LEVEL {level} WAS CHOSEN. SOLVING {numPuzzles} LEVEL {level} PUZZLES.")
     board = Board()
-    board.Pick_Board(level)  # Pass level to this function instead of calling chooseLevel again inside
-
-    run = True
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            # Additional event handling here
+    
+    # Loop to generate and solve puzzles.
+    for _ in range(numPuzzles):
+        board.Pick_Board(level)
         board.Draw()
-       
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_SPACE]:
-            if not solver_triggered:  # This is here so that it doesn't print the timer multiple times
-                solver_triggered = True  # Spacebar was pressed
-
-                start_time = time.time()  # Start of timer
-                solver.Solve(board)
-                end_time = time.time()  # End of timer
-
-                print(f"Sudoku solved in {end_time - start_time:.3f} seconds")
-        else:
-            solver_triggered = False  # Spacebar was not triggered
-
+        pygame.display.update()
+        solved = False
+        run = True # Initialize the flag used to run the game loop
+        while not solved:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: # If the user closes the window, exit the game loop
+                    print("EXITING PROGRAM X WAS PRESSED.")
+                    run = False
+                if event.type == pygame.KEYDOWN: # If the user presses a key
+                    if event.key == pygame.K_SPACE: # If user presses space and solver is triggered.
+                        start_time = time.time() # Start timer
+                        solver.Solve(board)
+                        end_time = time.time() # End timer
+                        print(f"SUDOKU SOLVED IN {end_time - start_time:.3f} SECONDS.")
+                        pygame.display.update()
+                        time.sleep(5)  # Delay for 5 seconds to see the solved board
+                        solved = True
+                    if event.key == pygame.K_ESCAPE: # If user presses escape, exit the game loop
+                        run = False 
+                        print("EXITING PROGRAM ESC WAS PRESSED.")
+                        return
+        board.resetBoard() # Reset board for next puzzle
     pygame.quit()
 
 if __name__ == '__main__':
