@@ -1,30 +1,49 @@
 def Solve(board):
-    board.Draw()
-    find = Find_Empty(board)
-    if not find:
-        return True
-    else:
-        row, col = find
+    empty = Find_Empty(board)
+    if not empty:
+        return True  # No empty cell found, puzzle is solved
+    row, col = empty
 
-    for i in range(1, 10):
-        if Valid(board, i, (row, col)):
-            board.Get_Board()[row][col] = i
+    for value in Get_Possible_Values(board, (row, col)):
+        board.Get_Board()[row][col] = value
+        if Solve(board):
+            return True
+        board.Get_Board()[row][col] = 0  # Backtrack if solution path fails
 
-            if Solve(board):
-                return True
-
-            board.Get_Board()[row][col] = 0
-
-    return False
+    return False  # Trigger backtracking
 
 
 def Find_Empty(board):
+    min_remaining_values = float('inf')
+    next_cell = None
     for i in range(9):
         for j in range(9):
             if board.Get_Board()[i][j] == 0:
-                return [i, j]  # row, col
+                remaining_values = len(Get_Possible_Values(board, (i, j)))
+                if remaining_values < min_remaining_values:
+                    min_remaining_values = remaining_values
+                    next_cell = [i, j]
+    return next_cell
 
-    return None
+
+# ADDED
+def Get_Possible_Values(board, pos):
+    row, col = pos
+    possible_values = set(range(1, 10))  # Start with all possible values from 1 to 9
+
+    # Eliminate values based on the row
+    possible_values -= set(board.Get_Board()[row])
+
+    # Eliminate values based on the column
+    possible_values -= set(board.Get_Board()[i][col] for i in range(9))
+
+    # Eliminate values based on the 3x3 box
+    box_start_row, box_start_col = 3 * (row // 3), 3 * (col // 3)
+    for i in range(box_start_row, box_start_row + 3):
+        for j in range(box_start_col, box_start_col + 3):
+            possible_values.discard(board.Get_Board()[i][j])
+
+    return list(possible_values)
 
 
 def Valid(board, num, pos):
@@ -38,7 +57,7 @@ def Valid(board, num, pos):
         if board.Get_Board()[i][pos[1]] == num and pos[0] != i:
             return False
 
-    # Check boardx
+    # Check board
     boardx_x = pos[1] // 3
     boardx_y = pos[0] // 3
 

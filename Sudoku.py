@@ -12,13 +12,13 @@ pygame.init()
 WIN_WIDTH = 700
 
 SCALE = WIN_WIDTH // 9
-WIN_HEIGHT = WIN_WIDTH + SCALE//2
+WIN_HEIGHT = WIN_WIDTH + SCALE // 2
 
 WINDOW = pygame.display.set_mode((WIN_WIDTH, int(WIN_HEIGHT)))
 pygame.display.set_caption("CS450 SUDOKU TEAM")
 
-STAT_FONT = pygame.font.SysFont("freesansbold", int(SCALE//1.3))
-LABEL_FONT = pygame.font.SysFont("freesansbod", int(SCALE//2.8))
+STAT_FONT = pygame.font.SysFont("freesansbold", int(SCALE // 1.3))
+LABEL_FONT = pygame.font.SysFont("freesansbod", int(SCALE // 2.8))
 
 # Color Pallet
 BLACK = [72, 72, 72]
@@ -33,7 +33,7 @@ class Board:
         # Initialize a new board as a 9x9 grid filled with zeros
         self.board = [[0 for _ in range(9)] for _ in range(9)]
         self.initBoard = []
-        
+
     def resetBoard(self):
         self.board = [[0 for _ in range(9)] for _ in range(9)]
 
@@ -123,33 +123,34 @@ class Board:
                 text = STAT_FONT.render("{}".format(self.board[row][col] if self.board[row][col] > 0 else ""), 1, TEXT)
                 Wgap = (SCALE - text.get_width()) // 2
                 Hgap = (SCALE - text.get_height()) // 2
-                WINDOW.blit(text, (col * SCALE + Wgap + 2, row * SCALE + Hgap+3))
+                WINDOW.blit(text, (col * SCALE + Wgap + 2, row * SCALE + Hgap + 3))
 
         for row in range(len(self.initBoard)):
             for col in range(len(self.initBoard[row])):
-                text = STAT_FONT.render("{}".format(self.initBoard[row][col] if self.initBoard[row][col] > 0 else ""), 1, ITEXT)
+                text = STAT_FONT.render("{}".format(self.initBoard[row][col] if self.initBoard[row][col] > 0 else ""),
+                                        1, ITEXT)
                 Wgap = (SCALE - text.get_width()) // 2
                 Hgap = (SCALE - text.get_height()) // 2
-                WINDOW.blit(text, (col * SCALE + Wgap + 2, row * SCALE + Hgap+3))
+                WINDOW.blit(text, (col * SCALE + Wgap + 2, row * SCALE + Hgap + 3))
 
         text = LABEL_FONT.render("{}".format("PRESS SPACE TO SOLVE AUTOMATICALLY."), 1, BLACK)
-        WINDOW.blit(text, (int(WIN_WIDTH//2 - text.get_width()//2), int(WIN_HEIGHT-SCALE//2.7)))
+        WINDOW.blit(text, (int(WIN_WIDTH // 2 - text.get_width() // 2), int(WIN_HEIGHT - SCALE // 2.7)))
 
         pygame.display.update()
+
 
 # Updated main function to utilize level chosen from chooseLevel.py - ROSE
 def main():
     pygame.init()
-    
+
     WINDOW = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    
-    
+
     # Level selection section.
     level = chooseLevel(WINDOW)  # Choose level
     if level not in [1, 2, 3]:
         print("NO LEVEL WAS CHOSEN. EXITING PROGRAM.")
         pygame.quit()
-    
+
     # Number of puzzles to solve section.
     numPuzzles = getNumOfRuns(WINDOW, "ENTER A NUMBER OF PUZZLES TO SOLVE: ")  # Get number of runs
     try:
@@ -159,34 +160,38 @@ def main():
         numPuzzles = 1
     print(f"LEVEL {level} WAS CHOSEN. SOLVING {numPuzzles} LEVEL {level} PUZZLES.")
     board = Board()
-    
+
     # Loop to generate and solve puzzles.
     for _ in range(numPuzzles):
         board.Pick_Board(level)
         board.Draw()
         pygame.display.update()
         solved = False
-        run = True # Initialize the flag used to run the game loop
+        run = True  # Initialize the flag used to run the game loop
         while not solved:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: # If the user closes the window, exit the game loop
+                if event.type == pygame.QUIT:  # If the user closes the window, exit the game loop
                     print("EXITING PROGRAM X WAS PRESSED.")
                     run = False
-                if event.type == pygame.KEYDOWN: # If the user presses a key
-                    if event.key == pygame.K_SPACE: # If user presses space and solver is triggered.
-                        start_time = time.time() # Start timer
-                        solver.Solve(board)
-                        end_time = time.time() # End timer
+                if event.type == pygame.KEYDOWN:  # If the user presses a key
+                    if event.key == pygame.K_SPACE:  # If user presses space and solver is triggered.
+                        start_time = time.time()  # Start timer
+                        correct = solver.Solve(board)  # FOR TROUBLESHOOTING
+                        if correct:
+                            print("SOLVED BOARD:")
+                            board.Draw()
+                        end_time = time.time()  # End timer
                         print(f"SUDOKU SOLVED IN {end_time - start_time:.3f} SECONDS.")
                         pygame.display.update()
                         time.sleep(5)  # Delay for 5 seconds to see the solved board
                         solved = True
-                    if event.key == pygame.K_ESCAPE: # If user presses escape, exit the game loop
-                        run = False 
+                    if event.key == pygame.K_ESCAPE:  # If user presses escape, exit the game loop
+                        run = False
                         print("EXITING PROGRAM ESC WAS PRESSED.")
                         return
-        board.resetBoard() # Reset board for next puzzle
+        board.resetBoard()  # Reset board for next puzzle
     pygame.quit()
+
 
 if __name__ == '__main__':
     main()
