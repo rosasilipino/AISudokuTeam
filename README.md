@@ -1,8 +1,11 @@
 # AISudokuTeam
 CS 450 Sudoku Team
 Team Members : Aaron Sanchez, Marc Rodriguez, Rosa Lisa Silipino, Hisham Alasadi, Azza Laz
+Link to git: 
+https://github.com/rosasilipino/AISudokuTeam.git
 
 This program utilizes backtracking to solve sudoku puzzle.
+
 
 HOW TO RUN CODE:
 
